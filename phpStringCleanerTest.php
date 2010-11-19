@@ -55,4 +55,8 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase
         $input = "<?php function foo()\t\n \t{";
         $this->assertMagic('<?php function foo() {', $input);
     }
+    public function testAssociativeArrays() {
+        $input = '<?php $foo = array("foo"=>"bar", "baz"   =>     "monkey");';
+        $this->assertMagic('<?php $foo = array("foo" => "bar", "baz" => "monkey");', $input);
+    }
 }

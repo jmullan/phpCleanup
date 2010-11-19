@@ -31,13 +31,14 @@ class phpStringCleaner
         "/([;\s\n\r])(if|while|foreach|switch|for|list)\(/" => '$1$2 (',
         "/}[ \t\n\r]*else/" => '} else',
         "/else[ \t\n\r]*{/" => 'else {',
-        "/([^ \t])=>/" => "$1 =>",
         "/\)[ \t]+\n/" => ")\n",
         "/;[ \t]+\n/" => ";\n",
         "/\([ \t]+/" => '(',
         "/=\s*&\s*new/" => '= new',
         "/ global *([^;,]+), */" => " global \$1; global ",
         "/function([^(]+)(\([^)]*\))[ \t\n\r]+{/" => 'function$1$2 {',
+        "/([^ \t])[ \t]*=>/" => "$1 =>",
+        "/=>[ \t]*([^ \t])/" => '=> $1',
     );
 
     public $possibleRegexReplaces = array(
@@ -45,12 +46,11 @@ class phpStringCleaner
     );
 
     public $unconvertedRegexReplaces = array(
-        'class\([^{]+\)[ \t\n]+{' => 'class\\1\n{',
-        '\\([{};][ \t\n]*\\)\\(public\\|private\\|static\\|function\\|var\\|class\\|interface\\|abstract\\)'
-        => "\\1\n/**\n *\n */\n\\2",
+        'class\([^{]+\)[ \t\n\r]+{' => 'class\\1\n{',
+        '\\([{};][ \t\n\r]*\\)\\(public\\|private\\|static\\|function\\|var\\|class\\|interface\\|abstract\\)'
+        => "\\1\n\r?/**\n *\n */\n\\2",
         '=>\\([^ \t]\\)' => "=> \\1",
         '\\([^ \t]\\)[ \t][ \t]+=>' => '\\1 =>',
-        '=>[ \t][ \t]+' => "=> ",
         '\n\\([ \t]\\)*//+[ \t]*\\([^\n]+\\)' => '\n\\1/* \\2 */',
         '\\*\\/\n\\([ \t]\\)*\\/\\*' => '\n*',
         '\?>[ \n\t]*\'' => '\n'
