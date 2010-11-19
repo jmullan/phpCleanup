@@ -19,6 +19,7 @@ class phpStringCleaner
         // "\n\r" => "\n",
         'array (' => ' array(',
         'Array(' => 'array(',
+        ' GLOBAL ' => ' global ',
         '){' => ') {',
         '( ' => '( ',
         'else if' => 'elseif',
