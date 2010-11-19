@@ -22,6 +22,7 @@ class phpStringCleaner
         '( ' => '( ',
         'else if' => 'elseif',
         ' stdclass' => ' stdClass',
+        "\n\r" => "\n",
     );
 
     public $regexReplaces = array(

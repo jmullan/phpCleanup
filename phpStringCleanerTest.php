@@ -55,4 +55,8 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase
         $input = '<?php $foo = &new bar();';
         $this->assertMagic('<?php $foo = new bar()', $input);
     }
+    public function testCleansLineEndings() {
+        $input = "<?php echo 'monkey';\n\r";
+        $this->assertMagic("<?php echo 'monkey';\n", $input);
+    }
 }
