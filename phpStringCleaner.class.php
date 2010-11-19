@@ -16,13 +16,13 @@ class phpStringCleaner
 
     
     public $replaces = array(
+        "\n\r" => "\n",
         'array (' => ' array(',
         'Array(' => 'array(',
         '){' => ') {',
         '( ' => '( ',
         'else if' => 'elseif',
         ' stdclass' => ' stdClass',
-        "\n\r" => "\n",
     );
 
     public $regexReplaces = array(
