@@ -10,7 +10,7 @@ foreach (array_slice($argv, 1) as $filename) {
     $output = $phpStringCleaner->magic($input);
     if ($input != $output) {
         $backup = $filename . '.bak';
-        echo "Changed $input\n";
+        echo "Changed $filename\n";
         file_put_contents($backup, $input) && file_put_contents($filename, $output);
     }
 }
