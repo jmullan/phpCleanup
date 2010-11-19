@@ -42,4 +42,13 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase
         $input = '<?php if (true) { }   else{ }';
         $this->assertMagic('<?php if (true) { } else { }', $input);
     }
+    public function removeReferencesToNew()
+    {
+        $input = '<?php $foo =& new bar();';
+        $this->assertMagic('<?php $foo = new bar()', $input);
+        $input = '<?php $foo = & new bar();';
+        $this->assertMagic('<?php $foo = new bar()', $input);
+        $input = '<?php $foo = &new bar();';
+        $this->assertMagic('<?php $foo = new bar()', $input);
+    }
 }

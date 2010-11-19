@@ -17,8 +17,10 @@ class phpStringCleaner
     
     public $replaces = array(
         'array (' => ' array(',
+        'Array(' => 'array(',
         '){' => ') {',
         '( ' => '( ',
+        'else if' => 'elseif',
         ' stdclass' => ' stdClass',
     );
 
@@ -30,6 +32,7 @@ class phpStringCleaner
         "/\)[ \t]+\n/" => ")\n",
         "/;[ \t]+\n/" => ";\n",
         "/\([ \t]+/" => '(',
+        "/=\s*&\s*new/" => '= new',
     );
 
     public $possibleRegexReplaces = array(
