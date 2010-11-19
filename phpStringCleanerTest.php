@@ -55,4 +55,8 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase
         $input = '<?php $foo = &new bar();';
         $this->assertMagic('<?php $foo = new bar()', $input);
     }
+    public function splitOutSimpleGlobals() {
+        $input = '<?php global $foo, $bar, $baz;';
+        $this->assertMagic('<?php global $foo; global $bar; global $baz;', $input);
+    }
 }
