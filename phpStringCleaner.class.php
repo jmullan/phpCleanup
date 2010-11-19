@@ -36,7 +36,7 @@ class phpStringCleaner
         "/\([ \t]+/" => '(',
         "/=\s*&\s*new/" => '= new',
         "/ global *([^;,]+), */" => " global \$1; global ",
-        "/function([^(]+)(\([^)]*\))[ \t\n]+{/" => 'function$1$2 {',
+        "/function([^(]+)(\([^)]*\))[ \t\n\r]+{/" => 'function$1$2 {',
     );
 
     public $possibleRegexReplaces = array(
