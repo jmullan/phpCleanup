@@ -8,37 +8,30 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase
     public function setup() {
         $this->cleaner = new phpStringCleaner();
     }
-    private function assertMagic($expected, $input)
-    {
+    private function assertMagic($expected, $input) {
         $output = $this->cleaner->magic($input);
         $this->assertEquals($expected, $output);
     }
 
-    public function testCleansIf()
-    {
+    public function testCleansIf() {
         $this->assertMagic('<?php if (', '<?php if(');
     }
-    public function testCleansWhile()
-    {
+    public function testCleansWhile() {
         $this->assertMagic('<?php while (', '<?php while(');
     }
-    public function testCleansForeach()
-    {
+    public function testCleansForeach() {
         $input = '<?php foreach(';
         $this->assertMagic('<?php foreach (', $input);
     }
-    public function testCleansSwitch()
-    {
+    public function testCleansSwitch() {
         $input = '<?php switch(';
         $this->assertMagic('<?php switch (', $input);
     }
-    public function testCleansFor()
-    {
+    public function testCleansFor() {
         $input = '<?php for(';
         $this->assertMagic('<?php for (', $input);
     }
-    public function testCleansElseSpacing()
-    {
+    public function testCleansElseSpacing() {
         $input = '<?php if (true) { }   else{ }';
         $this->assertMagic('<?php if (true) { } else { }', $input);
         $input = "<?php if (true) { } \n else{ }";
@@ -46,8 +39,7 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase
         $input = "<?php if (true) { } \n else if { }";
         $this->assertMagic('<?php if (true) { } elseif { }', $input);
     }
-    public function testRemoveReferencesToNew()
-    {
+    public function testRemoveReferencesToNew() {
         $input = '<?php $foo =& new bar();';
         $this->assertMagic('<?php $foo = new bar();', $input);
         $input = '<?php $foo = & new bar();';

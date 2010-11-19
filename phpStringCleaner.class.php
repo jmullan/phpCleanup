@@ -21,6 +21,7 @@ class phpStringCleaner
         'Array(' => 'array(',
         ' GLOBAL ' => ' global ',
         '){' => ') {',
+        ' var $' => ' public $',
         '( ' => '( ',
         'else if' => 'elseif',
         ' stdclass' => ' stdClass',
