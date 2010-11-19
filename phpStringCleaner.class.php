@@ -16,7 +16,7 @@ class phpStringCleaner
 
     
     public $replaces = array(
-        "\n\r" => "\n",
+        // "\n\r" => "\n",
         'array (' => ' array(',
         'Array(' => 'array(',
         '){' => ') {',
@@ -26,9 +26,9 @@ class phpStringCleaner
     );
 
     public $regexReplaces = array(
-        "/([;\s\n])(if|while|foreach|switch|for|list)\(/" => '$1$2 (',
-        "/}[ \t\n]*else/" => '} else',
-        "/else[ \t\n]*{/" => 'else {',
+        "/([;\s\n\r])(if|while|foreach|switch|for|list)\(/" => '$1$2 (',
+        "/}[ \t\n\r]*else/" => '} else',
+        "/else[ \t\n\r]*{/" => 'else {',
         "/([^ \t])=>/" => "$1 =>",
         "/\)[ \t]+\n/" => ")\n",
         "/;[ \t]+\n/" => ";\n",
