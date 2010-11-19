@@ -46,17 +46,21 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase
         $input = "<?php if (true) { } \n else if { }";
         $this->assertMagic('<?php if (true) { } elseif { }', $input);
     }
-    public function removeReferencesToNew()
+    public function testRemoveReferencesToNew()
     {
         $input = '<?php $foo =& new bar();';
-        $this->assertMagic('<?php $foo = new bar()', $input);
+        $this->assertMagic('<?php $foo = new bar();', $input);
         $input = '<?php $foo = & new bar();';
-        $this->assertMagic('<?php $foo = new bar()', $input);
+        $this->assertMagic('<?php $foo = new bar();', $input);
         $input = '<?php $foo = &new bar();';
-        $this->assertMagic('<?php $foo = new bar()', $input);
+        $this->assertMagic('<?php $foo = new bar();', $input);
     }
-    public function splitOutSimpleGlobals() {
-        $input = '<?php global $foo, $bar, $baz;';
-        $this->assertMagic('<?php global $foo; global $bar; global $baz;', $input);
+    public function testSplitOutSimpleGlobals() {
+        $input = '<?php global $foo, $bar;';
+        $this->assertMagic('<?php global $foo; global $bar;', $input);
+    }
+    public function testFormatFunctionBraces() {
+        $input = "<?php function foo()\t\n \t{";
+        $this->assertMagic('<?php function foo() {', $input);
     }
 }

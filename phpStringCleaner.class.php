@@ -35,7 +35,8 @@ class phpStringCleaner
         "/;[ \t]+\n/" => ";\n",
         "/\([ \t]+/" => '(',
         "/=\s*&\s*new/" => '= new',
-        "/global ([^;,]+),/" => ' global $1; global ',
+        "/ global *([^;,]+), */" => " global \$1; global ",
+        "/function([^(]+)(\([^)]*\))[ \t\n]+{/" => 'function$1$2 {',
     );
 
     public $possibleRegexReplaces = array(
@@ -43,7 +44,6 @@ class phpStringCleaner
     );
 
     public $unconvertedRegexReplaces = array(
-        'function\([^(]+\)(\([^)]*\))[ \t\n]+{' => "function\\1(\\2)\n{",
         'class\([^{]+\)[ \t\n]+{' => 'class\\1\n{',
         '\\([{};][ \t\n]*\\)\\(public\\|private\\|static\\|function\\|var\\|class\\|interface\\|abstract\\)'
         => "\\1\n/**\n *\n */\n\\2",
