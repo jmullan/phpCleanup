@@ -28,12 +28,14 @@ class phpStringCleaner
     );
 
     public $regexReplaces = array(
+        "/([a-zA-Z0-9]+)\s+\(/" => '$1(',        
         "/([;\s\n\r])(if|while|foreach|switch|for|list)\(/" => '$1$2 (',
         "/}[ \t\n\r]*else/" => '} else',
         "/else[ \t\n\r]*{/" => 'else {',
         "/\)[ \t]+\n/" => ")\n",
         "/;[ \t]+\n/" => ";\n",
         "/\([ \t]+/" => '(',
+        "/[ \t]+\)/" => ')',
         "/=\s*&\s*new/" => '= new',
         "/ global *([^;,]+), */" => " global \$1; global ",
         "/function([^(]+)(\([^)]*\))[ \t\n\r]+{/" => 'function$1$2 {',
