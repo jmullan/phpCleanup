@@ -39,8 +39,10 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         $this->assertMagic('<?php if (true) { } else { }', $input);
         $input = "<?php if (true) { } \n else{ }";
         $this->assertMagic('<?php if (true) { } else { }', $input);
-        $input = "<?php if (true) { } \n else if { }";
-        $this->assertMagic('<?php if (true) { } elseif { }', $input);
+        $input = "<?php if (true) { } \n else if  (false) { }";
+        $this->assertMagic('<?php if (true) { } elseif (false) { }', $input);
+        $input = "<?php if (true) { } \n elseif (false) { }";
+        $this->assertMagic('<?php if (true) { } elseif (false) { }', $input);
     }
     public function testRemoveReferencesToNew() {
         $input = '<?php $foo =& new bar();';

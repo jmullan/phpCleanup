@@ -29,7 +29,7 @@ class phpStringCleaner
 
     public $regexReplaces = array(
         "/([a-zA-Z0-9]+)\s+\(/" => '$1(',        
-        "/([;\s\n\r])(if|while|foreach|switch|for|list|return)\(/" => '$1$2 (',
+        "/([;\s\n\r])(if|elseif|while|foreach|switch|for|list|return)\(/" => '$1$2 (',
         "/}[ \t\n\r]*else/" => '} else',
         "/else[ \t\n\r]*{/" => 'else {',
         "/\)[ \t]+\n/" => ")\n",
