@@ -37,10 +37,13 @@ class phpStringCleaner
         "/\([ \t]+/" => '(',
         "/[ \t]+\)/" => ')',
         "/=\s*&\s*new/" => '= new',
-        "/ global *([^;,]+), */" => " global \$1; global ",
         "/function([^(]+)(\([^)]*\))[ \t\n\r]+{/" => 'function$1$2 {',
         "/([^ \t])[ \t]*=>/" => "$1 =>",
         "/=>[ \t]*([^ \t])/" => '=> $1',
+    );
+
+    public $repeatUntilUnchangedRegexes = array(
+        "/ global[ \t\n\r]*([^;]+),[ \t\n\r]*/" => " global \$1;\nglobal ",
     );
 
     public $possibleRegexReplaces = array(
@@ -146,6 +149,15 @@ class phpStringCleaner
         foreach ($this->regexReplaces as $search => $replace) {
             $this->regexReplace($search, $replace);
         }
+        foreach ($this->repeatUntilUnchangedRegexes as $search => $replace) {
+            $limit = 10;
+            $was = false;
+            while (($was != $this->cleanedString) && $limit--) {
+                $was = $this->cleanedString;
+                $this->regexReplace($search, $replace);
+            }
+        }
+
         return $this->getCleanedString();
     }
 }

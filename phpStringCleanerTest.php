@@ -2,8 +2,7 @@
 require_once 'PHPUnit/Framework.php';
 require_once 'phpStringCleaner.class.php';
 
-class phpStringCleanerTest extends PHPUnit_Framework_TestCase
-{
+class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
     
     public function setup() {
         $this->cleaner = new phpStringCleaner();
@@ -52,8 +51,8 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase
         $this->assertMagic('<?php $foo = new bar();', $input);
     }
     public function testSplitOutSimpleGlobals() {
-        $input = '<?php global $foo, $bar;';
-        $this->assertMagic('<?php global $foo; global $bar;', $input);
+        $input = '<?php global $foo, $bar, $baz;';
+        $this->assertMagic("<?php global \$foo;\nglobal \$bar;\nglobal \$baz;", $input);
     }
     public function testFormatFunctionBraces() {
         $input = "<?php function foo()\t\n \t{";
