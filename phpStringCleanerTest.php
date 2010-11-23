@@ -56,6 +56,10 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         $input = '<?php global $foo, $bar, $baz;';
         $this->assertMagic("<?php global \$foo;\nglobal \$bar;\nglobal \$baz;", $input);
     }
+    public function testSplitOutVarDeclarations() {
+        $input = '<?php var $foo, $bar, $baz;';
+        $this->assertMagic("<?php public \$foo;\npublic \$bar;\npublic \$baz;", $input);
+    }
     public function testFormatFunctionBraces() {
         $input = "<?php function foo()\t\n \t{";
         $this->assertMagic('<?php function foo() {', $input);

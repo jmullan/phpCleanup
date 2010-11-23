@@ -43,7 +43,7 @@ class phpStringCleaner
     );
 
     public $repeatUntilUnchangedRegexes = array(
-        "/ global[ \t\n\r]*([^;]+),[ \t\n\r]*/" => " global \$1;\nglobal ",
+        "/ (global|var|public)[ \t\n\r]*\\$([^;]+),[ \t\n\r]*/" => " \$1 \$\$2;\n\$1 ",
     );
 
     public $possibleRegexReplaces = array(
