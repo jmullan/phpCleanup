@@ -33,6 +33,8 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
     public function testCleanParens() {
         $input = '<?php function foo ( $bar ) {';
         $this->assertMagic('<?php function foo($bar) {', $input);
+        $input = '<?php function baz ( ' . "\n" . '   $monkey ) {';
+        $this->assertMagic('<?php function baz(' . "\n" . '   $monkey) {', $input);
     }
     public function testCleansElseSpacing() {
         $input = '<?php if (true) { }   else{ }';

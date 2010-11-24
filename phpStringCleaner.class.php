@@ -17,7 +17,7 @@ class phpStringCleaner
     
     public $replaces = array(
         // "\n\r" => "\n",
-        'array (' => ' array(',
+        ' array (' => ' array(',
         'Array(' => 'array(',
         ' GLOBAL ' => ' global ',
         '){' => ') {',
@@ -34,8 +34,8 @@ class phpStringCleaner
         "/else[ \t\n\r]*{/" => 'else {',
         "/\)[ \t]+\n/" => ")\n",
         "/;[ \t]+\n/" => ";\n",
-        "/\([ \t]+/" => '(',
-        "/[ \t]+\)/" => ')',
+        "/\([ \t]+([\S|\n])/" => '($1',
+        "/(\S)[ \t]+\)/" => '$1)',
         "/=\s*&\s*new/" => '= new',
         "/function([^(]+)(\([^)]*\))[ \t\n\r]+{/" => 'function$1$2 {',
         "/([^ \t])[ \t]*=>/" => "$1 =>",
