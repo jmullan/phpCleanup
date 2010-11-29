@@ -48,38 +48,48 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
     }
     public function testRemoveReferencesToNew() {
         $input = '<?php $foo =& new bar();';
-        $this->assertMagic('<?php $foo = new bar();', $input);
+        $this->assertMagic('<?php $foo = new bar(); ', $input);
         $input = '<?php $foo = & new bar();';
-        $this->assertMagic('<?php $foo = new bar();', $input);
+        $this->assertMagic('<?php $foo = new bar(); ', $input);
         $input = '<?php $foo = &new bar();';
-        $this->assertMagic('<?php $foo = new bar();', $input);
+        $this->assertMagic('<?php $foo = new bar(); ', $input);
     }
     public function testSplitOutSimpleGlobals() {
         $input = '<?php global $foo, $bar, $baz;';
-        $this->assertMagic("<?php global \$foo;\nglobal \$bar;\nglobal \$baz;", $input);
+        $this->assertMagic("<?php global \$foo;\nglobal \$bar;\nglobal \$baz; ", $input);
     }
     public function testSplitOutVarDeclarations() {
         $input = '<?php var $foo, $bar, $baz;';
-        $this->assertMagic("<?php public \$foo;\npublic \$bar;\npublic \$baz;", $input);
+        $this->assertMagic("<?php public \$foo;\npublic \$bar;\npublic \$baz; ", $input);
     }
     public function testFunctionBraces() {
         $input = "<?php function foo()\t\n \t{";
         $this->assertMagic('<?php function foo() {', $input);
     }
     public function testAssociativeArrays() {
-        $input = '<?php $foo = array("foo"=>"bar", "baz"   =>     "monkey");';
-        $this->assertMagic('<?php $foo = array("foo" => "bar", "baz" => "monkey");', $input);
+        $input = '<?php $foo = array("foo"=>"bar", "baz"   =>     "monkey"); ';
+        $this->assertMagic('<?php $foo = array("foo" => "bar", "baz" => "monkey"); ', $input);
     }
     public function testCommaSpacing() {
         $input = '<?php foo("bar" ,"baz");';
-        $this->assertMagic('<?php foo("bar", "baz");', $input);
+        $this->assertMagic('<?php foo("bar", "baz"); ', $input);
     }
     public function testEqualsSpacing() {
         $input = '<?php $foo="bar"; $baz=="monkey";';
-        $this->assertMagic('<?php $foo = "bar"; $baz == "monkey";', $input);
+        $this->assertMagic('<?php $foo = "bar"; $baz == "monkey"; ', $input);
     }
     public function testBang() {
         $input = '<?php $foo= ! $bar; $baz!="monkey";';
-        $this->assertMagic('<?php $foo = !$bar; $baz != "monkey";', $input);
+        $this->assertMagic('<?php $foo = !$bar; $baz != "monkey"; ', $input);
+    }
+    public function testSemicolonSpacing() {
+        $input = '<?php echo "foo";echo "bar";  echo "baz";';
+        $this->assertMagic('<?php echo "foo"; echo "bar"; echo "baz"; ', $input);
+    }
+    public function testShortTags() {
+        if (ini_get('short_open_tag')) {
+            $input = '<?="foo" ?>bar<?= "baz"; ?>';
+            $this->assertMagic('<?= "foo" ?>bar<?= "baz"; ?>', $input);
+        }
     }
 }

@@ -1,11 +1,17 @@
 <?php
 /**
  * @TODO backticks
+ * @TODO space after semicolon in for arguments
  * @TODO negative sign
  * @TODO increment / decrement
  * @TODO logical operators
  * @TODO array brackets
  * @TODO dot (concatenation)
+ * @TODO short tags
+ * @TODO casting (int) etc.
+ * @TODO comma followed by close parenthesis
+ * @TODO array brackets
+ * @TODO ternary operators
  */
 
 class phpStringCleaner
@@ -156,7 +162,7 @@ class phpStringCleaner
         ' var $' => ' public $',
         '( ' => '( ',
         'else if' => 'elseif',
-        ' stdclass' => ' stdClass',
+        ' stdclass' => ' stdClass'
     );
 
     private static $regexReplaces = array(
@@ -171,7 +177,9 @@ class phpStringCleaner
         "/=\s*&\s*new/" => '= new',
         "/function([^(]+)(\([^)]*\))[ \t\n\r]+{/" => 'function$1$2 {',
         "/[ \t]*,[ \t]*/" => ', ',
-        "/!\s+/" => '!'
+        "/!\s+/" => '!',
+        "/;[ \t]*/" => '; ',
+        "/<\?[ \t]*=[ \t]*/" => '<?= '
     );
 
     private static $repeatUntilUnchangedRegexes = array(
@@ -235,8 +243,8 @@ class phpStringCleaner
 
     public function setOriginalString($string) {
         $this->originalString = $string;
-
         $tokens = token_get_all($this->originalString);
+
         ob_start();
         foreach ($tokens as $token) {
             if (!is_string($token)) {
