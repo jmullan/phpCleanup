@@ -1,7 +1,13 @@
 <?php
 /**
- *foo
+ * @TODO backticks
+ * @TODO negative sign
+ * @TODO increment / decrement
+ * @TODO logical operators
+ * @TODO array brackets
+ * @TODO dot (concatenation)
  */
+
 class phpStringCleaner
 {
     private static $stringTypes = array(
@@ -104,6 +110,43 @@ class phpStringCleaner
         'goto'
     );
 
+    private static $phpComparison = array(
+        '===',
+        '!==',
+        '!=',
+        '==',
+        '<=',
+        '>=',
+        '<>'
+    );
+
+    private static $phpAssignment = array(
+        '<<=',
+        '>>=',
+        '=>',
+        '+=',
+        '-=',
+        '*=',
+        '/=',
+        '%=',
+        '.=',
+        '&=',
+        '|=',
+        '^=',
+        '=&',
+        '='
+    );
+
+    private static $phpBitwise = array(
+        '<<', '>>', '&', '|', '^', '~'
+    );
+
+    private static $phpArithmetic = array(
+        '+', '-', '*', '/', '%'
+    );
+
+    private static $phpErrorControl = array('@');
+
     private static $replaces = array(
         // "\n\r" => "\n",
         ' array (' => ' array(',
@@ -127,8 +170,8 @@ class phpStringCleaner
         "/(\S)[ \t]+\)/" => '$1)',
         "/=\s*&\s*new/" => '= new',
         "/function([^(]+)(\([^)]*\))[ \t\n\r]+{/" => 'function$1$2 {',
-        "/([^ \t])[ \t]*=>/" => "$1 =>",
-        "/=>[ \t]*([^ \t])/" => '=> $1',
+        "/[ \t]*,[ \t]*/" => ', ',
+        "/!\s+/" => '!'
     );
 
     private static $repeatUntilUnchangedRegexes = array(
@@ -167,9 +210,13 @@ class phpStringCleaner
                 $spaceOkay
             );
             $fixLanguageConstructsRegex
-                = '/\b(' . join('|', array_map('preg_quote', $spaceBeforeParens)) . ")[ \t\n\r]*\(/";
+                = '/\b(' . join('|', array_map('self::preg_quote_map', $spaceBeforeParens)) . ")[ \t\n\r]*\(/S";
             self::$regexReplaces[$fixLanguageConstructsRegex] = '$1 (';
 
+            $equalsSymbols = array_merge(self::$phpComparison, self::$phpAssignment);
+
+            $fixEqualsSymbols = '/\s*(' . join('|', array_map('self::preg_quote_map', $equalsSymbols)) . ')\s*/S';
+            self::$regexReplaces[$fixEqualsSymbols] = ' $1 ';
 
             self::$initialized = true;
         }
@@ -180,6 +227,10 @@ class phpStringCleaner
         $this->strings = array();
         $this->comments = array();
 
+    }
+
+    private function preg_quote_map($string) {
+        return preg_quote($string, '/');
     }
 
     public function setOriginalString($string) {

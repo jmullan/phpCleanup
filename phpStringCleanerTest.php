@@ -62,12 +62,24 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         $input = '<?php var $foo, $bar, $baz;';
         $this->assertMagic("<?php public \$foo;\npublic \$bar;\npublic \$baz;", $input);
     }
-    public function testFormatFunctionBraces() {
+    public function testFunctionBraces() {
         $input = "<?php function foo()\t\n \t{";
         $this->assertMagic('<?php function foo() {', $input);
     }
     public function testAssociativeArrays() {
         $input = '<?php $foo = array("foo"=>"bar", "baz"   =>     "monkey");';
         $this->assertMagic('<?php $foo = array("foo" => "bar", "baz" => "monkey");', $input);
+    }
+    public function testCommaSpacing() {
+        $input = '<?php foo("bar" ,"baz");';
+        $this->assertMagic('<?php foo("bar", "baz");', $input);
+    }
+    public function testEqualsSpacing() {
+        $input = '<?php $foo="bar"; $baz=="monkey";';
+        $this->assertMagic('<?php $foo = "bar"; $baz == "monkey";', $input);
+    }
+    public function testBang() {
+        $input = '<?php $foo= ! $bar; $baz!="monkey";';
+        $this->assertMagic('<?php $foo = !$bar; $baz != "monkey";', $input);
     }
 }
