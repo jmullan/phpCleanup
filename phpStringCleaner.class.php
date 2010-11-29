@@ -14,11 +14,100 @@ class phpStringCleaner
         T_DOC_COMMENT
     );
 
-    
-    public $replaces = array(
+    private static $phpKeywords = array(
+        'abstract',
+        'and',
+        'array',
+        'as',
+        'break',
+        'case',
+        'catch',
+        'cfunction',
+        'class',
+        'clone',
+        'const',
+        'continue',
+        'declare',
+        'default',
+        'do',
+        'else',
+        'elseif',
+        'enddeclare',
+        'endfor',
+        'endforeach',
+        'endif',
+        'endswitch',
+        'endwhile',
+        'extends',
+        'final',
+        'for',
+        'foreach',
+        'function',
+        'global',
+        'goto',
+        'if',
+        'implements',
+        'interface',
+        'instanceof',
+        'namespace',
+        'new',
+        'old_function',
+        'or',
+        'private',
+        'protected',
+        'public',
+        'static',
+        'switch',
+        'throw',
+        'try',
+        'use',
+        'var',
+        'while',
+        'xor'
+    );
+
+    private static $phpLanguageConstructs = array(
+        'die',
+        'echo',
+        'empty',
+        'exit',
+        'eval',
+        'include',
+        'include_once',
+        'isset',
+        'list',
+        'require',
+        'require_once',
+        'return',
+        'print',
+        'unsetpub'
+    );
+
+    private static $phpControlStructures = array(
+        'if',
+        'else',
+        'elseif',
+        'else if',
+        'while',
+        'do while',
+        'for',
+        'foreach',
+        'break',
+        'continue',
+        'switch',
+        'declare',
+        'return',
+        'require',
+        'include',
+        'require_once',
+        'include_once',
+        'goto'
+    );
+
+    private static $replaces = array(
         // "\n\r" => "\n",
         ' array (' => ' array(',
-        'Array(' => 'array(',
+        ' Array(' => ' array(',
         ' GLOBAL ' => ' global ',
         '){' => ') {',
         ' var $' => ' public $',
@@ -27,9 +116,9 @@ class phpStringCleaner
         ' stdclass' => ' stdClass',
     );
 
-    public $regexReplaces = array(
+    private static $regexReplaces = array(
         "/([a-zA-Z0-9]+)\s+\(/" => '$1(',        
-        "/([;\s\n\r])(if|elseif|while|foreach|switch|for|list|return)\(/" => '$1$2 (',
+        "/([;\s\n\r])()\(/" => '$1$2 (',
         "/}[ \t\n\r]*else/" => '} else',
         "/else[ \t\n\r]*{/" => 'else {',
         "/\)[ \t]+\n/" => ")\n",
@@ -42,15 +131,15 @@ class phpStringCleaner
         "/=>[ \t]*([^ \t])/" => '=> $1',
     );
 
-    public $repeatUntilUnchangedRegexes = array(
+    private static $repeatUntilUnchangedRegexes = array(
         "/ (global|var|public)[ \t\n\r]*\\$([^;]+),[ \t\n\r]*/" => " \$1 \$\$2;\n\$1 ",
     );
 
-    public $possibleRegexReplaces = array(
+    private static $possibleRegexReplaces = array(
         "/<\\?php([^\n])/" => "<?php\n"
     );
 
-    public $unconvertedRegexReplaces = array(
+    private static $unconvertedRegexReplaces = array(
         'class\([^{]+\)[ \t\n\r]+{' => 'class\\1\n{',
         '\\([{};][ \t\n\r]*\\)\\(public\\|private\\|static\\|function\\|var\\|class\\|interface\\|abstract\\)'
         => "\\1\n\r?/**\n *\n */\n\\2",
@@ -61,15 +150,37 @@ class phpStringCleaner
         '\?>[ \n\t]*\'' => '\n'
     );
 
-
+    private static $initialized = false;
 
     private $originalString;
     private $cleanedString;
 
+    public $strings;
+    public $comments;
+
+    public function __construct() {
+
+        if (!self::$initialized) {
+            $spaceOkay = array('array');
+            $spaceBeforeParens = array_diff(
+                array_merge(self::$phpControlStructures, self::$phpKeywords),
+                $spaceOkay
+            );
+            $fixLanguageConstructsRegex
+                = '/\b(' . join('|', array_map('preg_quote', $spaceBeforeParens)) . ")[ \t\n\r]*\(/";
+            self::$regexReplaces[$fixLanguageConstructsRegex] = '$1 (';
 
 
-    public $strings = array();
-    public $comments = array();
+            self::$initialized = true;
+        }
+
+        $this->originalString = '';
+        $this->cleanedString = '';
+
+        $this->strings = array();
+        $this->comments = array();
+
+    }
 
     public function setOriginalString($string) {
         $this->originalString = $string;
@@ -84,16 +195,8 @@ class phpStringCleaner
                 $token_name = token_name($token_value);
                 
             }        
-            /*
-              array (
-              0 => 367,
-              1 => '<?php
-              ',
-              2 => 2,
-              )*/
             if (is_string($token)) {
                 echo $token;               
-                // var_export($token);
             } elseif (in_array($token_value, self::$stringTypes)) {
                 $md5 = md5($token_text);
                 $this->strings[$md5] = $token_text;
@@ -143,13 +246,13 @@ class phpStringCleaner
     }
     public function magic($string) {
         $this->setOriginalString($string);
-        foreach ($this->replaces as $search => $replace) {
+        foreach (self::$replaces as $search => $replace) {
             $this->replace($search, $replace);
         }
-        foreach ($this->regexReplaces as $search => $replace) {
+        foreach (self::$regexReplaces as $search => $replace) {
             $this->regexReplace($search, $replace);
         }
-        foreach ($this->repeatUntilUnchangedRegexes as $search => $replace) {
+        foreach (self::$repeatUntilUnchangedRegexes as $search => $replace) {
             $limit = 10;
             $was = false;
             while (($was != $this->cleanedString) && $limit--) {
