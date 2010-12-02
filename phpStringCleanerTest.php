@@ -83,8 +83,10 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         $this->assertMagic('<?php $foo = !$bar; $baz != "monkey"; ', $input);
     }
     public function testSemicolonSpacing() {
-        $input = '<?php echo "foo";echo "bar";  echo "baz";';
-        $this->assertMagic('<?php echo "foo"; echo "bar"; echo "baz"; ', $input);
+        $input = '<?php echo 1 ;echo 2;  echo 3;';
+        $this->assertMagic('<?php echo 1; echo 2; echo 3; ', $input);
+        $input = "<?php echo 4 ;\n echo 5; \n echo 6;\n";
+        $this->assertMagic("<?php echo 4;\n echo 5;\n echo 6;\n", $input);
     }
     public function testShortTags() {
         if (ini_get('short_open_tag')) {
