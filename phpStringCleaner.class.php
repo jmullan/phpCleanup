@@ -160,7 +160,7 @@ class phpStringCleaner
     private static $phpErrorControl = array('@');
 
     private static $replaces = array(
-        // "\n\r" => "\n",
+        // "\r\n" => "\n",
         ' array (' => ' array(',
         ' Array(' => ' array(',
         ' GLOBAL ' => ' global ',
@@ -173,23 +173,23 @@ class phpStringCleaner
 
     private static $regexReplaces = array(
         "/([a-zA-Z0-9]+)\s+\(/" => '$1(',        
-        "/([;\s\n\r])()\(/" => '$1$2 (',
-        "/}[ \t\n\r]*else/" => '} else',
-        "/else[ \t\n\r]*{/" => 'else {',
-        "/\)[ \t]+\n/" => ")\n",
+        "/([;\s\r\n])()\(/" => '$1$2 (',
+        "/}[ \t\r\n]*else/" => '} else',
+        "/else[ \t\r\n]*{/" => 'else {',
+        "/\)[ \t]+(\r?\n)/" => ")$1",
         "/[ \t]*;[ \t]*/" => '; ',
-        "/;[ \t]+\n/" => ";\n",
+        "/[ \t]*;[ \t]*(\r?\n)/" => ';$1',
         "/\([ \t]+([\S|\n])/" => '($1',
         "/(\S)[ \t]+\)/" => '$1)',
         "/=\s*&\s*new/" => '= new',
-        "/function([^(]+)(\([^)]*\))[ \t\n\r]+{/" => 'function$1$2 {',
+        "/function([^(]+)(\([^)]*\))[ \t\r\n]+{/" => 'function$1$2 {',
         "/[ \t]*,[ \t]*/" => ', ',
         "/!\s+/" => '!',
         "/<\?[ \t]*=[ \t]*/" => '<?= '
     );
 
     private static $repeatUntilUnchangedRegexes = array(
-        "/ (global|var|public)[ \t\n\r]*\\$([^;]+),[ \t\n\r]*/" => " \$1 \$\$2;\n\$1 ",
+        "/ (global|var|public)[ \t\r\n]*\\$([^;]+),[ \t\r\n]*/" => " \$1 \$\$2;\n\$1 ",
     );
 
     private static $possibleRegexReplaces = array(
@@ -197,9 +197,9 @@ class phpStringCleaner
     );
 
     private static $unconvertedRegexReplaces = array(
-        'class\([^{]+\)[ \t\n\r]+{' => 'class\\1\n{',
-        '\\([{};][ \t\n\r]*\\)\\(public\\|private\\|static\\|function\\|var\\|class\\|interface\\|abstract\\)'
-        => "\\1\n\r?/**\n *\n */\n\\2",
+        'class\([^{]+\)[ \t\r\n]+{' => 'class\\1\n{',
+        '\\([{};][ \t\r\n]*\\)\\(public\\|private\\|static\\|function\\|var\\|class\\|interface\\|abstract\\)'
+        => "\\1\r\n?/**\n *\n */\n\\2",
         '=>\\([^ \t]\\)' => "=> \\1",
         '\\([^ \t]\\)[ \t][ \t]+=>' => '\\1 =>',
         '\n\\([ \t]\\)*//+[ \t]*\\([^\n]+\\)' => '\n\\1/* \\2 */',
@@ -224,7 +224,7 @@ class phpStringCleaner
                 $spaceOkay
             );
             $fixLanguageConstructsRegex
-                = '/\b(' . join('|', array_map('self::preg_quote_map', $spaceBeforeParens)) . ")[ \t\n\r]*\(/S";
+                = '/\b(' . join('|', array_map('self::preg_quote_map', $spaceBeforeParens)) . ")[ \t\r\n]*\(/S";
             self::$regexReplaces[$fixLanguageConstructsRegex] = '$1 (';
 
             $equalsSymbols = array_merge(self::$phpComparison, self::$phpAssignment);
