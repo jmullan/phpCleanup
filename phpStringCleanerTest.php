@@ -73,6 +73,8 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
     public function testCommaSpacing() {
         $input = '<?php foo("bar" ,"baz");';
         $this->assertMagic('<?php foo("bar", "baz"); ', $input);
+        $input = "<?php foo(1\n ,2);";
+        $this->assertMagic("<?php foo(1,\n 2); ", $input);
     }
     public function testEqualsSpacing() {
         $input = '<?php $foo="bar"; $baz=="monkey";  $pirate = 1 && (2 || 3)';
