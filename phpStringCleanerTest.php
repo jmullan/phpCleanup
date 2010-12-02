@@ -75,8 +75,11 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         $this->assertMagic('<?php foo("bar", "baz"); ', $input);
     }
     public function testEqualsSpacing() {
-        $input = '<?php $foo="bar"; $baz=="monkey";';
-        $this->assertMagic('<?php $foo = "bar"; $baz == "monkey"; ', $input);
+        $input = '<?php $foo="bar"; $baz=="monkey";  $pirate = 1 && (2 || 3)';
+        $this->assertMagic(
+            '<?php $foo = "bar"; $baz == "monkey"; $pirate = 1 && (2 || 3)',
+            $input
+        );
     }
     public function testBang() {
         $input = '<?php $foo= ! $bar; $baz!="monkey";';

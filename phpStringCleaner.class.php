@@ -129,7 +129,9 @@ class phpStringCleaner
         '==',
         '<=',
         '>=',
-        '<>'
+        '<>',
+        '&&',
+        '||'
     );
 
     private static $phpAssignment = array(
