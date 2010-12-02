@@ -5,9 +5,9 @@ require_once 'phpStringCleaner.class.php';
 class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
     
     public function setup() {
-        $this->cleaner = new phpStringCleaner();
     }
     private function assertMagic($expected, $input) {
+        $this->cleaner = new phpStringCleaner();
         $output = $this->cleaner->magic($input);
         $this->assertEquals($expected, $output);
     }
@@ -88,7 +88,7 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
     }
     public function testShortTags() {
         if (ini_get('short_open_tag')) {
-            $input = '<?="foo" ?>bar<?= "baz"; ?>';
+            $input = '<?="foo" ?>bar<? = "baz"; ?>';
             $this->assertMagic('<?= "foo" ?>bar<?= "baz"; ?>', $input);
         }
     }

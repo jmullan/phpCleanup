@@ -116,6 +116,12 @@ class phpStringCleaner
         'goto'
     );
 
+    private static $phpOpenTags = array(
+        '<?php',
+        '<?=',
+        '<?'
+    );
+
     private static $phpComparison = array(
         '===',
         '!==',
@@ -225,6 +231,8 @@ class phpStringCleaner
 
             $fixEqualsSymbols = '/\s*(' . join('|', array_map('self::preg_quote_map', $equalsSymbols)) . ')\s*/S';
             self::$regexReplaces[$fixEqualsSymbols] = ' $1 ';
+
+            self::$regexReplaces['/<\? =/'] = '<?=';
 
             self::$initialized = true;
         }
