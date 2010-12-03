@@ -231,7 +231,7 @@ class phpStringCleaner
 
             $equalsSymbols = array_merge(self::$phpComparison, self::$phpAssignment);
 
-            $fixEqualsSymbols = '/\s*(' . join('|', array_map('self::preg_quote_map', $equalsSymbols)) . ')\s*/S';
+            $fixEqualsSymbols = '/[ \t]*(' . join('|', array_map('self::preg_quote_map', $equalsSymbols)) . ')[ \t]*/S';
             self::$regexReplaces[$fixEqualsSymbols] = ' $1 ';
 
             self::$regexReplaces['/<\? =/'] = '<?=';
