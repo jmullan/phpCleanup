@@ -148,7 +148,7 @@ class phpStringCleaner
         '|=',
         '^=',
         '=&',
-        '='
+       '='
     );
 
     private static $phpCastableTypes = array(
@@ -171,6 +171,9 @@ class phpStringCleaner
         ' var $' => ' public $',
         '( ' => '( ',
         'else if' => 'elseif',
+    );
+
+    private static $earlyRegexReplaces = array(
     );
 
     private static $regexReplaces = array(
@@ -249,7 +252,11 @@ class phpStringCleaner
             'from' => "/<\?([^p=].*|p[^h].*|ph[^p])/",
             'to' => '<?php $1'
         ),
-        
+        array(
+            'label' => 'Remove between PHP tags and newlines',
+            'from' => '/<\?php[ \t]+(\r?\n)/',
+            'to' => '<?php$1'
+        )
     );
 
     private static $repeatUntilUnchangedRegexes = array(
@@ -309,11 +316,11 @@ class phpStringCleaner
 
             $equalsSymbols = array_merge(self::$phpComparison, self::$phpAssignment);
 
-            $fixEqualsSymbols = '/[ \t]*(' . join('|', array_map('self::preg_quote_map', $equalsSymbols)) . ')[ \t]*/S';
+            $fixEqualsSymbols = '/([^ \t\r\n])[ \t]*(' . join('|', array_map('self::preg_quote_map', $equalsSymbols)) . ')[ \t]*/S';
             self::$regexReplaces[] = array(
                 'label' => 'Fix equals symbols',
                 'from' => $fixEqualsSymbols,
-                'to' => ' $1 '
+                'to' => '$1 $2 '
             );
 
             self::$regexReplaces[] = array(
@@ -322,15 +329,26 @@ class phpStringCleaner
                 'to' => '<?='
             );
 
+            self::$earlyRegexReplaces[] = array(
+                'label' => 'Fix casts',
+                'from' => (
+                    '/\([ \t\r\n]*('
+                    . join('|', array_map('self::preg_quote_map', self::$phpCastableTypes))
+                    . ')[ \t\r\n]*\)[ \t]*/'
+                ),
+                'to' => '($1) '
+            );
+
             self::$regexReplaces[] = array(
                 'label' => 'Fix casts',
                 'from' => (
-                    '/[ \t\r\n]*\([ \t\r\n]*('
+                    '/([^ (\t\r\n])[ \t\r\n]*\([ \t\r\n]*('
                     . join('|', array_map('self::preg_quote_map', self::$phpCastableTypes))
-                    . ')[ \t\r\n]*\)[ \t\r\n]*/'
+                    . ')[ \t\r\n]*\)/'
                 ),
-                'to' => ' ($1) '
+                'to' => '$1 ($2)'
             );
+
 
             $fixTokenArrays = array(self::$phpKeywords, self::$phpLanguageConstructs, self::$phpControlStructures, self::$phpCastableTypes);
 
@@ -429,6 +447,9 @@ class phpStringCleaner
         foreach (self::$replaces as $search => $replace) {
             $this->replace($search, $replace);
         }
+        foreach (self::$earlyRegexReplaces as $replacement) {
+            $this->regexReplace($replacement['from'], $replacement['to']);
+        }
         foreach (self::$regexReplaces as $replacement) {
             $this->regexReplace($replacement['from'], $replacement['to']);
         }
@@ -440,7 +461,6 @@ class phpStringCleaner
                 $this->regexReplace($replacement['from'], $replacement['to']);
             }
         }
-
         return $this->getCleanedString();
     }
 }

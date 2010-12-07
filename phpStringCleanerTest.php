@@ -11,7 +11,6 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         $output = $this->cleaner->magic($input);
         $this->assertEquals($expected, $output);
     }
-
     public function testCleansIf() {
         $this->assertMagic('<?php if (', '<?php if(');
     }
@@ -108,12 +107,14 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
 
         }
     }
-    
     public function testCasting() {
-        $input = '<?php $foo = "1"; echo  (int)  $foo; ?>';
+        $input = '<?php $foo = "1"; echo ( int ) $foo; ?>';
         $this->assertMagic('<?php $foo = "1"; echo (int) $foo; ?>', $input);
+        $input = '<?php $foo = "1"; echo  (int)  $bar; ?>';
+        $this->assertMagic('<?php $foo = "1"; echo (int) $bar; ?>', $input);
+        $input = '<?php $foo = ( (int)4); ?>';
+        $this->assertMagic('<?php $foo = ((int) 4); ?>', $input);
     }
-
     public function testFixTokens() {
         $input = '<?php foreach (ARRAY(1, 2) AS $foo) {} ?>';
         $this->assertMagic('<?php foreach (array(1, 2) as $foo) {} ?>', $input);
