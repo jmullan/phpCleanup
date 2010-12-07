@@ -35,6 +35,8 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         $this->assertMagic('<?php function foo($bar) {', $input);
         $input = '<?php function baz ( ' . "\n" . '   $monkey ) {';
         $this->assertMagic('<?php function baz(' . "\n" . '   $monkey) {', $input);
+        $input = '<?php $foo = (1 + 2); ';
+        $this->assertMagic('<?php $foo = (1 + 2); ', $input);
     }
     public function testCleansElseSpacing() {
         $input = '<?php if (true) { }   else{ }';
@@ -97,8 +99,13 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         if (ini_get('short_open_tag')) {
             $input = '<?="foo" ?>bar<? = "baz"; ?>';
             $this->assertMagic('<?= "foo" ?>bar<?= "baz"; ?>', $input);
+
+            $input = '<?echo 1; ?>';
+            $this->assertMagic('<?php echo 1; ?>', $input);
+
         }
     }
+    
     public function testCasting() {
         $input = '<?php $foo = "1"; echo  (int)  $foo; ?>';
         $this->assertMagic('<?php $foo = "1"; echo (int) $foo; ?>', $input);

@@ -239,10 +239,21 @@ class phpStringCleaner
             'to' => '!',
         ),
         array(
-            'label' => 'Fix short PHP tags',
+            'label' => 'Fix short PHP tags that echo',
             'from' => "/<\?[ \t]*=[ \t]*/",
             'to' => '<?= '
         ),
+        array(
+            'label' => 'Fix short PHP tags followed by whitespace',
+            'from' => "/<\?([ \t]+)/",
+            'to' => '<?php$1'
+        ),
+        array(
+            'label' => 'Fix short PHP tags',
+            'from' => "/<\?([^p=].*|p[^h].*|ph[^p])/",
+            'to' => '<?php $1'
+        ),
+        
     );
 
     private static $repeatUntilUnchangedRegexes = array(
