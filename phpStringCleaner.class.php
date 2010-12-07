@@ -151,6 +151,10 @@ class phpStringCleaner
         '='
     );
 
+    private static $phpCastableTypes = array(
+        'string', 'bool', 'boolean', 'int', 'integer', 'binary', 'float', 'double', 'real', 'array', 'object'
+    );
+
     private static $phpBitwise = array(
         '<<', '>>', '&', '|', '^', '~'
     );
@@ -174,24 +178,79 @@ class phpStringCleaner
     );
 
     private static $regexReplaces = array(
-        "/([a-zA-Z0-9]+)\s+\(/" => '$1(',        
-        "/([;\s\r\n])()\(/" => '$1$2 (',
-        "/}[ \t\r\n]*else/" => '} else',
-        "/else[ \t\r\n]*{/" => 'else {',
-        "/\)[ \t]+(\r?\n)/" => ")$1",
-        "/([ \t\r\n]*)([\r\n])([ \t]*)([,;])([ \t]*)/" => '$4$1$2$3$5',
-        "/[ \t]*([,;])[ \t]*/" => '$1 ',
-        "/[ \t]*([,;])[ \t]*(\r?\n)/" => '$1$2',
-        "/\([ \t]+([\S|\n])/" => '($1',
-        "/(\S)[ \t]+\)/" => '$1)',
-        "/=\s*&\s*new/" => '= new',
-        "/function([^(]+)(\([^)]*\))[ \t\r\n]+{/" => 'function$1$2 {',
-        "/!\s+/" => '!',
-        "/<\?[ \t]*=[ \t]*/" => '<?= '
+        array(
+            'label' => 'Snug up functions with their parens',
+            'from' => "/([a-zA-Z0-9]+)\s+\(/",
+            'to' => '$1('
+        ),
+        array(
+            'label' => 'Put else on same line as preceding curly brace',
+            'from' => "/}[ \t\r\n]*else/",
+            'to' => '} else',
+        ),
+        array(
+            'label' => 'Put next curly brace on the same line as the else',
+            'from' => "/else[ \t\r\n]*{/",
+            'to' => 'else {',
+        ),
+        array(
+            'label' => 'Trim spaces after a parenthesis',
+            'from' => "/\)[ \t]+(\r?\n)/",
+            'to' => ")$1",
+        ),
+        array(
+            'label' => 'Move semicolons and commas to end of first line, respecting whitespace',
+            'from' => "/([ \t\r\n]*)([\r\n])([ \t]*)([,;])([ \t]*)/",
+            'to' => '$4$1$2$3$5',
+        ),
+        array(
+            'label' => 'One space after commas and semicolons',
+            'from' => "/[ \t]*([,;])[ \t]*/",
+            'to' => '$1 ',
+        ),
+        array(
+            'label' => 'No spaces between commas and semicolons and newlines',
+            'from' => "/[ \t]*([,;])[ \t]*(\r?\n)/",
+            'to' => '$1$2',
+        ),
+        array(
+            'label' => 'No spaces inside of left parentheses',
+            'from' => "/\([ \t]+([\S|\n])/",
+            'to' => '($1',
+        ),
+        array(
+            'label' => 'No spaces inside of right parentheses',
+            'from' => "/(\S)[ \t]+\)/",
+            'to' => '$1)',
+        ),
+        array(
+            'label' => 'Do not assign result of new operator by reference',
+            'from' => "/=\s*&\s*new/",
+            'to' => '= new',
+        ),
+        array(
+            'label' => 'Fix simple function declarations',
+            'from' => "/function([^(]+)(\([^)]*\))[ \t\r\n]+{/",
+            'to' => 'function$1$2 {',
+        ),
+        array(
+            'label' => 'Snug negation operator with its neighbors to the right',
+            'from' => "/!\s+/",
+            'to' => '!',
+        ),
+        array(
+            'label' => 'Fix short PHP tags',
+            'from' => "/<\?[ \t]*=[ \t]*/",
+            'to' => '<?= '
+        ),
     );
 
     private static $repeatUntilUnchangedRegexes = array(
-        "/ (global|var|public)[ \t\r\n]*\\$([^;]+),[ \t\r\n]*/" => " \$1 \$\$2;\n\$1 ",
+        array(
+            'label' => 'Explode global, var, and public declarations',
+            'from' => "/ (global|var|public)[ \t\r\n]*\\$([^;]+),[ \t\r\n]*/",
+            'to' => " \$1 \$\$2;\n\$1 "
+        )
     );
 
     private static $possibleRegexReplaces = array(
@@ -199,6 +258,12 @@ class phpStringCleaner
     );
 
     private static $unconvertedRegexReplaces = array(
+
+        array(
+            'label' => '???',
+            'from' => "/([; \t\r\n]+)\(/",
+            'to' => '$1 (',
+        ),
         'class\([^{]+\)[ \t\r\n]+{' => 'class\\1\n{',
         '\\([{};][ \t\r\n]*\\)\\(public\\|private\\|static\\|function\\|var\\|class\\|interface\\|abstract\\)'
         => "\\1\r\n?/**\n *\n */\n\\2",
@@ -227,15 +292,36 @@ class phpStringCleaner
             );
             $fixLanguageConstructsRegex
                 = '/\b(' . join('|', array_map('self::preg_quote_map', $spaceBeforeParens)) . ")[ \t\r\n]*\(/S";
-            self::$regexReplaces[$fixLanguageConstructsRegex] = '$1 (';
+            self::$regexReplaces[] = array(
+                'label' => 'Fix language constructs',
+                'from' => $fixLanguageConstructsRegex,
+                'to' => '$1 ('
+            );
 
             $equalsSymbols = array_merge(self::$phpComparison, self::$phpAssignment);
 
             $fixEqualsSymbols = '/[ \t]*(' . join('|', array_map('self::preg_quote_map', $equalsSymbols)) . ')[ \t]*/S';
-            self::$regexReplaces[$fixEqualsSymbols] = ' $1 ';
+            self::$regexReplaces[] = array(
+                'label' => 'Fix equals symbols',
+                'from' => $fixEqualsSymbols,
+                'to' => ' $1 '
+            );
 
-            self::$regexReplaces['/<\? =/'] = '<?=';
+            self::$regexReplaces[] = array(
+                'label' => 'Fix PHP short tags',
+                'from' => '/<\? =/',
+                'to' => '<?='
+            );
 
+            self::$regexReplaces[] = array(
+                'label' => 'Fix casts',
+                'from' => (
+                    '/[ \t\r\n]*\([ \t\r\n]*('
+                    . join('|', array_map('self::preg_quote_map', self::$phpCastableTypes))
+                    . ')[ \t\r\n]*\)[ \t\r\n]*/'
+                ),
+                'to' => ' ($1) '
+            );
             self::$initialized = true;
         }
 
@@ -318,15 +404,15 @@ class phpStringCleaner
         foreach (self::$replaces as $search => $replace) {
             $this->replace($search, $replace);
         }
-        foreach (self::$regexReplaces as $search => $replace) {
-            $this->regexReplace($search, $replace);
+        foreach (self::$regexReplaces as $replacement) {
+            $this->regexReplace($replacement['from'], $replacement['to']);
         }
-        foreach (self::$repeatUntilUnchangedRegexes as $search => $replace) {
+        foreach (self::$repeatUntilUnchangedRegexes as $replacement) {
             $limit = 10;
             $was = false;
             while (($was != $this->cleanedString) && $limit--) {
                 $was = $this->cleanedString;
-                $this->regexReplace($search, $replace);
+                $this->regexReplace($replacement['from'], $replacement['to']);
             }
         }
 

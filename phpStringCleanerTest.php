@@ -99,4 +99,8 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
             $this->assertMagic('<?= "foo" ?>bar<?= "baz"; ?>', $input);
         }
     }
+    public function testCasting() {
+        $input = '<?php $foo = "1"; echo  (int)  $foo; ?>';
+        $this->assertMagic('<?php $foo = "1"; echo (int) $foo; ?>', $input);
+    }
 }
