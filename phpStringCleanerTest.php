@@ -63,6 +63,9 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
     public function testSplitOutVarDeclarations() {
         $input = '<?php var $foo, $bar, $baz;';
         $this->assertMagic("<?php public \$foo;\npublic \$bar;\npublic \$baz; ", $input);
+
+        $input = '<?php var $foo = array(1, 2, 3); ';
+        $this->assertMagic('<?php public $foo = array(1, 2, 3); ', $input);
     }
     public function testFunctionBraces() {
         $input = "<?php function foo()\t\n \t{";

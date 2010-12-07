@@ -259,7 +259,7 @@ class phpStringCleaner
     private static $repeatUntilUnchangedRegexes = array(
         array(
             'label' => 'Explode global, var, and public declarations',
-            'from' => "/ (global|var|public)[ \t\r\n]*\\$([^;]+),[ \t\r\n]*/",
+            'from' => "/ (global|var|public)[ \t\r\n]*\\$([^(;]+),[ \t\r\n]*/",
             'to' => " \$1 \$\$2;\n\$1 "
         )
     );
