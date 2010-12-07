@@ -113,4 +113,10 @@ class phpStringCleanerTest extends PHPUnit_Framework_TestCase {
         $input = '<?php $foo = "1"; echo  (int)  $foo; ?>';
         $this->assertMagic('<?php $foo = "1"; echo (int) $foo; ?>', $input);
     }
+
+    public function testFixTokens() {
+        $input = '<?php foreach (ARRAY(1, 2) AS $foo) {} ?>';
+        $this->assertMagic('<?php foreach (array(1, 2) as $foo) {} ?>', $input);
+    }
+
 }

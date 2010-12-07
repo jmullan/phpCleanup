@@ -92,7 +92,7 @@ class phpStringCleaner
         'require_once',
         'return',
         'print',
-        'unsetpub'
+        'unset'
     );
 
     private static $phpControlStructures = array(
@@ -167,14 +167,10 @@ class phpStringCleaner
 
     private static $replaces = array(
         // "\r\n" => "\n",
-        ' array (' => ' array(',
-        ' Array(' => ' array(',
-        ' GLOBAL ' => ' global ',
         '){' => ') {',
         ' var $' => ' public $',
         '( ' => '( ',
         'else if' => 'elseif',
-        ' stdclass' => ' stdClass'
     );
 
     private static $regexReplaces = array(
@@ -285,6 +281,8 @@ class phpStringCleaner
         '\?>[ \n\t]*\'' => '\n'
     );
 
+    private static $fixTokens = array();
+
     private static $initialized = false;
 
     private $originalString;
@@ -333,6 +331,16 @@ class phpStringCleaner
                 ),
                 'to' => ' ($1) '
             );
+
+            $fixTokenArrays = array(self::$phpKeywords, self::$phpLanguageConstructs, self::$phpControlStructures, self::$phpCastableTypes);
+
+            foreach ($fixTokenArrays as $array) {
+                foreach ($array as $token) {
+                    self::$fixTokens[strtolower($token)] = $token;
+                }
+            }
+            self::$fixTokens['stdclass'] = 'stdClass';
+
             self::$initialized = true;
         }
 
@@ -360,10 +368,13 @@ class phpStringCleaner
                 $token_line = $token[2];
                 $token_name = token_name($token_value);
                 
-            }        
-            if (is_string($token)) {
-                echo $token;               
-            } elseif (in_array($token_value, self::$stringTypes)) {
+            } else {
+                $token_text = $token;
+                $token_value = null;
+                $token_line = null;
+                $token_name = null;
+            }
+            if (in_array($token_value, self::$stringTypes)) {
                 $md5 = md5($token_text);
                 $this->strings[$md5] = $token_text;
                 echo "'$md5'";
@@ -372,6 +383,9 @@ class phpStringCleaner
                 $this->comments[$md5] = $token_text;
                 echo "/*$md5*/";
             } else {
+                if (isset(self::$fixTokens[strtolower($token_text)])) {
+                    $token_text = self::$fixTokens[strtolower($token_text)];
+                }
                 echo $token_text;
             }
         }
