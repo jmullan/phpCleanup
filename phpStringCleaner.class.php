@@ -214,7 +214,7 @@ class phpStringCleaner
         ),
         array(
             'label' => 'No spaces inside of left parentheses',
-            'from' => "/\([ \t]+([\S|\n])/",
+            'from' => "/\([ \t]+([\S\r\n])/",
             'to' => '($1',
         ),
         array(
@@ -268,7 +268,7 @@ class phpStringCleaner
     );
 
     private static $possibleRegexReplaces = array(
-        "/<\\?php([^\n])/" => "<?php\n"
+        "/<\\?php([^\r\n]+)/" => "<?php"
     );
 
     private static $unconvertedRegexReplaces = array(
@@ -435,9 +435,11 @@ class phpStringCleaner
     public function getCleanedString() {
         $cleanCode = $this->cleanedString;
         foreach ($this->strings as $search => $replace) {
+            $replace = str_replace("\n", PHP_EOL, $replace);
             $cleanCode = str_replace("'$search'", $replace, $cleanCode);
         }
         foreach ($this->comments as $search => $replace) {
+            $replace = str_replace("\n", PHP_EOL, $replace);
             $cleanCode = str_replace("/*$search*/", $replace, $cleanCode);
         }
         return $cleanCode;
