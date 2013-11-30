@@ -1,17 +1,6 @@
-/messages.mo
 *~
 *.DS_Store
 #*
-lib/floIcon.php
-.idea/*
-config.php
-web/feed-icons/*
-cache/*/*
-lock/*
-tags
-cache/htmlpurifier/*/*ser
-lib/htmlpurifier/library/HTMLPurifier/DefinitionCache/Serializer/*/*ser
-web.config
 *.bak
 *flymake.php
 *.ini
