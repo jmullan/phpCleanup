@@ -1,7 +1,7 @@
 <?php
 namespace tests;
 
-class StringCleanerTest extends PHPUnit_Framework_TestCase
+class StringCleanerTest extends \PHPUnit_Framework_TestCase
 {
 
     public function setup()
@@ -140,5 +140,10 @@ class StringCleanerTest extends PHPUnit_Framework_TestCase
     {
         $input = '<?php foreach (ARRAY(1, 2) AS $foo) {} ?>';
         $this->assertMagic('<?php foreach (array(1, 2) as $foo) {} ?>', $input);
+    }
+    public function testClearsSemiColonBrace()
+    {
+        $input = "<?php function foo {\n    echo 'bar';} ?>";
+        $this->assertMagic("<?php function foo {\n    echo 'bar';\n} ?>", $input);
     }
 }

@@ -186,6 +186,11 @@ class StringCleaner
             'to' => '$1('
         ),
         array(
+            'label' => 'Break between semicolons and following close curly brace',
+            'from' => "/;[ \t]*}/",
+            'to' => ";\n}"
+        ),
+        array(
             'label' => 'Put else on same line as preceding curly brace',
             'from' => "/}[ \t\r\n]*else/",
             'to' => '} else',
