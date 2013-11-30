@@ -5,5 +5,5 @@ if (empty($argv) || !is_array($argv) || 2 > count($argv)) {
 } else {
     $input = file_get_contents($argv[1]);
 }
-$phpStringCleaner = new \PHPCleaner\StringCleaner();
+$phpStringCleaner = new \PHPCleanup\StringCleaner();
 echo $phpStringCleaner->magic($input);

@@ -7,7 +7,7 @@ if (empty($argv) || !is_array($argv) || 2 > count($argv)) {
 }
 
 foreach (array_slice($argv, 1) as $filename) {
-    $phpStringCleaner = new \PHPCleaner\StringCleaner();
+    $phpStringCleaner = new \PHPCleanup\StringCleaner();
     $input = file_get_contents($filename);
     $output = $phpStringCleaner->magic($input);
     if ($input != $output) {
