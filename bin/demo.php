@@ -1,7 +1,7 @@
 <?php
-require_once('phpStringCleaner.class.php');
+require_once __DIR__ . '/../vendor/autoload.php';
 $string = file_get_contents(realpath(__FILE__));
-$phpStringCleaner = new phpStringCleaner();
+$phpStringCleaner = new \PHPCleaner\StringCleaner();
 $codeOnly = $phpStringCleaner->setOriginalString($string);
 
 $a = array('a' => 'foo');

@@ -1,4 +1,6 @@
 <?php
+namespace PHPCleanup;
+
 /**
  * @TODO backticks
  * @TODO space after semicolon in for arguments
@@ -14,7 +16,7 @@
  * @TODO ternary operators
  */
 
-class phpStringCleaner
+class StringCleaner
 {
     private static $stringTypes = array(
         T_INLINE_HTML,
@@ -171,6 +173,7 @@ class phpStringCleaner
         ' var $' => ' public $',
         '( ' => '( ',
         'else if' => 'elseif',
+        'static public' => 'public static',
     );
 
     private static $earlyRegexReplaces = array(
@@ -298,8 +301,8 @@ class phpStringCleaner
     public $strings;
     public $comments;
 
-    public function __construct() {
-
+    public function __construct()
+    {
         if (!self::$initialized) {
             $spaceOkay = array('array');
             $spaceBeforeParens = array_diff(
@@ -307,7 +310,7 @@ class phpStringCleaner
                 $spaceOkay
             );
             $fixLanguageConstructsRegex
-                = '/\b(' . join('|', array_map('self::preg_quote_map', $spaceBeforeParens)) . ")[ \t\r\n]*\(/S";
+                = '/\b(' . join('|', array_map('self::pregQuoteMap', $spaceBeforeParens)) . ")[ \t\r\n]*\(/S";
             self::$regexReplaces[] = array(
                 'label' => 'Fix language constructs',
                 'from' => $fixLanguageConstructsRegex,
@@ -316,7 +319,9 @@ class phpStringCleaner
 
             $equalsSymbols = array_merge(self::$phpComparison, self::$phpAssignment);
 
-            $fixEqualsSymbols = '/([^ \t\r\n])[ \t]*(' . join('|', array_map('self::preg_quote_map', $equalsSymbols)) . ')[ \t]*/S';
+            $fixEqualsSymbols = '/([^ \t\r\n])[ \t]*('
+                . join('|', array_map('self::pregQuoteMap', $equalsSymbols))
+                . ')[ \t]*/S';
             self::$regexReplaces[] = array(
                 'label' => 'Fix equals symbols',
                 'from' => $fixEqualsSymbols,
@@ -333,7 +338,7 @@ class phpStringCleaner
                 'label' => 'Fix casts',
                 'from' => (
                     '/\([ \t\r\n]*('
-                    . join('|', array_map('self::preg_quote_map', self::$phpCastableTypes))
+                    . join('|', array_map('self::pregQuoteMap', self::$phpCastableTypes))
                     . ')[ \t\r\n]*\)[ \t]*/'
                 ),
                 'to' => '($1) '
@@ -343,14 +348,19 @@ class phpStringCleaner
                 'label' => 'Fix casts',
                 'from' => (
                     '/([^ (\t\r\n])[ \t\r\n]*\([ \t\r\n]*('
-                    . join('|', array_map('self::preg_quote_map', self::$phpCastableTypes))
+                    . join('|', array_map('self::pregQuoteMap', self::$phpCastableTypes))
                     . ')[ \t\r\n]*\)/'
                 ),
                 'to' => '$1 ($2)'
             );
 
 
-            $fixTokenArrays = array(self::$phpKeywords, self::$phpLanguageConstructs, self::$phpControlStructures, self::$phpCastableTypes);
+            $fixTokenArrays = array(
+                self::$phpKeywords,
+                self::$phpLanguageConstructs,
+                self::$phpControlStructures,
+                self::$phpCastableTypes
+            );
 
             foreach ($fixTokenArrays as $array) {
                 foreach ($array as $token) {
@@ -370,11 +380,13 @@ class phpStringCleaner
 
     }
 
-    private function preg_quote_map($string) {
+    private function pregQuoteMap($string)
+    {
         return preg_quote($string, '/');
     }
 
-    public function setOriginalString($string) {
+    public function setOriginalString($string)
+    {
         $this->originalString = $string;
         $tokens = token_get_all($this->originalString);
 
@@ -385,7 +397,7 @@ class phpStringCleaner
                 $token_text = $token[1];
                 $token_line = $token[2];
                 $token_name = token_name($token_value);
-                
+
             } else {
                 $token_text = $token;
                 $token_value = null;
@@ -410,16 +422,20 @@ class phpStringCleaner
         $output = ob_get_clean();
         $this->cleanedString = $output;
     }
-    public function getCurrentString() {
+    public function getCurrentString()
+    {
         return $this->cleanedString;
     }
-    public function replace($search, $replace) {
+    public function replace($search, $replace)
+    {
         $this->cleanedString = str_replace($search, $replace, $this->cleanedString);
     }
-    public function regexReplace($search, $replace) {
+    public function regexReplace($search, $replace)
+    {
         $this->cleanedString = preg_replace($search, $replace, $this->cleanedString);
     }
-    private function reindent() {
+    private function reindent()
+    {
         $tokens = token_get_all($this->cleanedString);
         foreach ($tokens as $token) {
             if (!is_string($token)) {
@@ -432,7 +448,8 @@ class phpStringCleaner
             var_export($token);
         }
     }
-    public function getCleanedString() {
+    public function getCleanedString()
+    {
         $cleanCode = $this->cleanedString;
         foreach ($this->strings as $search => $replace) {
             $replace = str_replace("\n", PHP_EOL, $replace);
@@ -444,7 +461,8 @@ class phpStringCleaner
         }
         return $cleanCode;
     }
-    public function magic($string) {
+    public function magic($string)
+    {
         $this->setOriginalString($string);
         foreach (self::$replaces as $search => $replace) {
             $this->replace($search, $replace);
@@ -466,4 +484,3 @@ class phpStringCleaner
         return $this->getCleanedString();
     }
 }
-
