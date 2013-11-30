@@ -1,4 +1,4 @@
-#!/bin/bang
+#!/bin/bash
 if [ ! -e "$1" ]
 then
     errmsg=${1}":File Not Found"
