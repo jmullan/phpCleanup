@@ -344,7 +344,7 @@ class StringCleaner
                 'from' => (
                     '/\([ \t\r\n]*('
                     . join('|', array_map('self::pregQuoteMap', self::$phpCastableTypes))
-                    . ')[ \t\r\n]*\)[ \t]*/'
+                    . ')[ \t\r\n]*\)[ \t]*/S'
                 ),
                 'to' => '($1) '
             );
@@ -354,7 +354,7 @@ class StringCleaner
                 'from' => (
                     '/([^ (\t\r\n])[ \t\r\n]*\([ \t\r\n]*('
                     . join('|', array_map('self::pregQuoteMap', self::$phpCastableTypes))
-                    . ')[ \t\r\n]*\)/'
+                    . ')[ \t\r\n]*\)/S'
                 ),
                 'to' => '$1 ($2)'
             );
@@ -394,7 +394,7 @@ class StringCleaner
     {
         $this->originalString = $string;
         $tokens = token_get_all($this->originalString);
-
+        $quote_regex = '/^"(?P<s>[^\\\\\'"$]*)"$/S';
         ob_start();
         foreach ($tokens as $token) {
             if (!is_string($token)) {
@@ -410,6 +410,10 @@ class StringCleaner
                 $token_name = null;
             }
             if (in_array($token_value, self::$stringTypes)) {
+                $matches = array();
+                if (preg_match($quote_regex, $token_text, $matches)) {
+                    $token_text = "'" . $matches['s'] . "'";
+                }
                 $md5 = md5($token_text);
                 $this->strings[$md5] = $token_text;
                 echo "'$md5'";

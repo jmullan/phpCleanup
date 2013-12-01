@@ -14,6 +14,13 @@ class StringCleanerTest extends \PHPUnit_Framework_TestCase
         $output = $this->cleaner->magic($input);
         $this->assertEquals($expected, $output);
     }
+    public function testSingleQuotes()
+    {
+        $this->assertMagic('<?php echo \'foo\'; ?>', '<?php echo "foo"; ?>');
+        $this->assertMagic('<?php echo "$bar"; ?>', '<?php echo "$bar"; ?>');
+        $this->assertMagic('<?php echo "baz\n"; ?>', '<?php echo "baz\n"; ?>');
+        $this->assertMagic('<?php echo "\'monkey\'"; ?>', '<?php echo "\'monkey\'"; ?>');
+    }
     public function testCleansIf()
     {
         $this->assertMagic('<?php if (', '<?php if(');
@@ -87,12 +94,12 @@ class StringCleanerTest extends \PHPUnit_Framework_TestCase
     public function testAssociativeArrays()
     {
         $input = '<?php $foo = array("foo"=>"bar", "baz"   =>     "monkey"); ';
-        $this->assertMagic('<?php $foo = array("foo" => "bar", "baz" => "monkey"); ', $input);
+        $this->assertMagic('<?php $foo = array(\'foo\' => \'bar\', \'baz\' => \'monkey\'); ', $input);
     }
     public function testCommaSpacing()
     {
         $input = '<?php foo("bar" ,"baz");';
-        $this->assertMagic('<?php foo("bar", "baz"); ', $input);
+        $this->assertMagic('<?php foo(\'bar\', \'baz\'); ', $input);
         $input = "<?php foo(1\n ,2);";
         $this->assertMagic("<?php foo(1,\n 2); ", $input);
     }
@@ -100,14 +107,14 @@ class StringCleanerTest extends \PHPUnit_Framework_TestCase
     {
         $input = '<?php $foo="bar"; $baz=="monkey";  $pirate = 1 && (2 || 3)';
         $this->assertMagic(
-            '<?php $foo = "bar"; $baz == "monkey"; $pirate = 1 && (2 || 3)',
+            '<?php $foo = \'bar\'; $baz == \'monkey\'; $pirate = 1 && (2 || 3)',
             $input
         );
     }
     public function testBang()
     {
         $input = '<?php $foo= ! $bar; $baz!="monkey";';
-        $this->assertMagic('<?php $foo = !$bar; $baz != "monkey"; ', $input);
+        $this->assertMagic('<?php $foo = !$bar; $baz != \'monkey\'; ', $input);
     }
     public function testSemicolonSpacing()
     {
@@ -130,9 +137,9 @@ class StringCleanerTest extends \PHPUnit_Framework_TestCase
     public function testCasting()
     {
         $input = '<?php $foo = "1"; echo ( int ) $foo; ?>';
-        $this->assertMagic('<?php $foo = "1"; echo (int) $foo; ?>', $input);
+        $this->assertMagic('<?php $foo = \'1\'; echo (int) $foo; ?>', $input);
         $input = '<?php $foo = "1"; echo  (int)  $bar; ?>';
-        $this->assertMagic('<?php $foo = "1"; echo (int) $bar; ?>', $input);
+        $this->assertMagic('<?php $foo = \'1\'; echo (int) $bar; ?>', $input);
         $input = '<?php $foo = ( (int)4); ?>';
         $this->assertMagic('<?php $foo = ((int) 4); ?>', $input);
     }
