@@ -20,6 +20,8 @@ class StringCleanerTest extends \PHPUnit_Framework_TestCase
         $this->assertMagic('<?php echo "$bar"; ?>', '<?php echo "$bar"; ?>');
         $this->assertMagic('<?php echo "baz\n"; ?>', '<?php echo "baz\n"; ?>');
         $this->assertMagic('<?php echo "\'monkey\'"; ?>', '<?php echo "\'monkey\'"; ?>');
+        $this->assertMagic('<?php echo \'"monkey"\'; ?>', '<?php echo "\"monkey\""; ?>');
+        $this->assertMagic('<?php echo "\"$monkey\""; ?>', '<?php echo "\"$monkey\""; ?>');
     }
     public function testCleansIf()
     {
@@ -47,9 +49,9 @@ class StringCleanerTest extends \PHPUnit_Framework_TestCase
     public function testCleanParens()
     {
         $input = '<?php function foo ( $bar ) {';
-        $this->assertMagic('<?php function foo($bar) {', $input);
+        $this->assertMagic('<?php function foo($bar)' . "\n" . '{', $input);
         $input = '<?php function baz ( ' . "\n" . '   $monkey ) {';
-        $this->assertMagic('<?php function baz(' . "\n" . '   $monkey) {', $input);
+        $this->assertMagic('<?php function baz(' . "\n" . '   $monkey)' . "\n" .'{', $input);
         $input = '<?php $foo = (1 + 2); ';
         $this->assertMagic('<?php $foo = (1 + 2); ', $input);
     }
@@ -89,7 +91,7 @@ class StringCleanerTest extends \PHPUnit_Framework_TestCase
     public function testFunctionBraces()
     {
         $input = "<?php function foo()\t\n \t{";
-        $this->assertMagic('<?php function foo() {', $input);
+        $this->assertMagic('<?php function foo()' . "\n" . '{', $input);
     }
     public function testAssociativeArrays()
     {

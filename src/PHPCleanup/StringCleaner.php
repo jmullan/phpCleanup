@@ -171,9 +171,10 @@ class StringCleaner
         // "\r\n" => "\n",
         '){' => ') {',
         ' var $' => ' public $',
-        '( ' => '( ',
         'else if' => 'elseif',
         'static public' => 'public static',
+        'static private' => 'private static',
+        'static protected' => 'protected static',
     );
 
     private static $earlyRegexReplaces = array(
@@ -237,8 +238,8 @@ class StringCleaner
         ),
         array(
             'label' => 'Fix simple function declarations',
-            'from' => "/function([^(]+)(\([^)]*\))[ \t\r\n]+{/",
-            'to' => 'function$1$2 {',
+            'from' => "/function([^(]+)(\([^)]*\))[ \t\r\n]*{/",
+            'to' => "function\$1\$2\n{",
         ),
         array(
             'label' => 'Snug negation operator with its neighbors to the right',
@@ -261,7 +262,7 @@ class StringCleaner
             'to' => '<?php $1'
         ),
         array(
-            'label' => 'Remove between PHP tags and newlines',
+            'label' => 'Remove whitespace between PHP tags and newlines',
             'from' => '/<\?php[ \t]+(\r?\n)/',
             'to' => '<?php$1'
         )
@@ -410,9 +411,55 @@ class StringCleaner
                 $token_name = null;
             }
             if (in_array($token_value, self::$stringTypes)) {
-                $matches = array();
-                if (preg_match($quote_regex, $token_text, $matches)) {
-                    $token_text = "'" . $matches['s'] . "'";
+                if ($token_value != T_INLINE_HTML) {
+                    $matches = array();
+                    if (preg_match($quote_regex, $token_text, $matches)) {
+                        # this is a double quoted string with nothing exciting
+                        # inside
+                        if (false !== strpos($token_text, "'")) {
+                            echo 'regex failed';
+                            echo $quote_regex;
+                            echo "\n";
+                            echo $token_text;
+                            echo "\n";
+                            exit(1);
+                        }
+                        $token_text = "'" . $matches['s'] . "'";
+                    } elseif (strlen($token_text) > 2 and $token_text[0] == '"') {
+                        # this might be a double quoted string with only escaped
+                        # double quotes inside
+                        $inside = substr($token_text, 1, -1);
+                        $characters = str_split($inside);
+                        $okay_to_replace = true;
+                        for ($i = 0; $i < count($characters); $i++) {
+                            if ($characters[$i] == "'" or $characters[$i] == '$') {
+                                $okay_to_replace = false;
+                                break;
+                            }
+                            if ($characters[$i] == '\\') {
+                                $next = $i + 1;
+                                if (isset($characters[$next]) && $characters[$next] == '"') {
+                                    # skip the next character
+                                    $i += 1;
+                                } else {
+                                    # any other escaped character
+                                    $okay_to_replace = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if ($okay_to_replace) {
+                            if (false !== strpos($token_text, "'")) {
+                                echo 'regex failed';
+                                echo $quote_regex;
+                                echo "\n";
+                                echo $token_text;
+                                echo "\n";
+                                exit(1);
+                            }
+                            $token_text = "'" . str_replace('\"', '"', $inside) . "'";
+                        }
+                    }
                 }
                 $md5 = md5($token_text);
                 $this->strings[$md5] = $token_text;
